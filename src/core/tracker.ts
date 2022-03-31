@@ -1,9 +1,9 @@
 import { config } from '../config'
-import { IPerData, IPerDataType } from '../types'
+import { IWebMetricsCollectionData, IWebMetricsType } from '../types'
 
-const allData: Partial<Record<IPerDataType, IPerData>> = {}
+const allData: Partial<Record<IWebMetricsType, IWebMetricsCollectionData>> = {}
 
-const typeMap: Record<string, IPerDataType> = {
+const typeMap: Record<string, IWebMetricsType> = {
   'Navigation Time': 'navigationTime',
   'Network Info': 'networkInfo',
   FCP: 'fcp',
@@ -15,7 +15,7 @@ const typeMap: Record<string, IPerDataType> = {
   TTI: 'tti',
 }
 
-export default (type: string, data: IPerData) => {
+export default (type: string, data: IWebMetricsCollectionData) => {
   const currentType = typeMap[type]
   allData[currentType] = data
   config.tracker && config.tracker(currentType, data, allData)

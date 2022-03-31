@@ -1,5 +1,5 @@
 import { isSupportPerformance } from './utils/utils'
-import { log, logIndicator } from './utils/log'
+import { log, logMetrics } from './utils/log'
 import {
   getNavigationTime,
   getNetworkInfo,
@@ -18,18 +18,19 @@ export default class WebMetricsCollection implements IWebMetricsCollection {
     config.tracker = args.tracker
     if (typeof args.log === 'boolean') config.log = args.log
     if (!isSupportPerformance) {
-      log(`This browser doesn't support Performance API`)
+      log(`This browser doesn't support Performance API.`)
       return
     }
-    logIndicator('Navigation Time', getNavigationTime())
-    logIndicator('Network Info', getNetworkInfo())
+    logMetrics('Navigation Time', getNavigationTime())
+    logMetrics('Network Info', getNetworkInfo())
+
     getPaintTime()
     getFID()
     getLCP()
     getCLS()
     getTTI()
 
-    // indicator not be measured when the page is loaded in a background tab
+    // 监听选项卡切换
     document.addEventListener(
       'visibilitychange',
       (event) => {
@@ -44,16 +45,16 @@ export default class WebMetricsCollection implements IWebMetricsCollection {
   }
   markEnd(startName: string, endName: string) {
     performance.mark(endName)
-    const measureName = `PerMoniteur-${startName}`
+    const measureName = `WebMetricsCollection-${startName}`
     performance.measure(measureName, startName, endName)
     const measures = performance.getEntriesByName(measureName)
-    measures.forEach((measure) => logIndicator(measureName, measure, true))
+    measures.forEach((measure) => logMetrics(measureName, measure, true))
   }
   clearMarks(name?: string) {
     performance.clearMarks(name)
   }
   clearMeasures(name?: string) {
-    performance.clearMeasures(`PerMoniteur-${name}`)
+    performance.clearMeasures(`WebMetricsCollection-${name}`)
   }
   fmpStart() {
     this.markStart('fmp-start')
@@ -63,7 +64,7 @@ export default class WebMetricsCollection implements IWebMetricsCollection {
     performance.measure('fmp', 'fmp-start', 'fmp-end')
     const measures = performance.getEntriesByName('fmp')
     measures.forEach((measure) =>
-      logIndicator('fmp', {
+      logMetrics('fmp', {
         time: measure.duration,
       })
     )

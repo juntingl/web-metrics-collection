@@ -1,6 +1,6 @@
-import Per from '../dist/index'
+import WebMetricsCollection from '../dist/index'
 
-const p = new Per({
+const webMetrics = new WebMetricsCollection({
   tracker: (type, data, allData) => {
     console.log('type: ', type)
     console.log(`${type} data: `, data)
@@ -8,10 +8,10 @@ const p = new Per({
   },
 })
 
-p.fmpStart()
+webMetrics.fmpStart()
 
-p.markStart('test')
+webMetrics.markStart('MarkTestStart')
 setTimeout(() => {
-  p.markEnd('test')
-  p.fmpEnd()
+  webMetrics.markEnd('MarkTestEnd')
+  webMetrics.fmpEnd()
 }, 2000)

@@ -14,6 +14,12 @@ export const isDev = () => {
   return process.env.NODE_ENV === 'development'
 }
 
+/**
+ * 性能监测对象
+ * @param type 性能检测类型 entryType
+ * @param cb
+ * https://w3c.github.io/performance-timeline/#dom-performanceobserver-observe
+ */
 export const getObserver = (type: string, cb: ICallback) => {
   const perfObserver = new PerformanceObserver((entryList) => {
     cb(entryList.getEntries())

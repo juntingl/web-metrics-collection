@@ -1,23 +1,32 @@
 import { getObserver, hiddenTime, getScore } from '../utils/utils'
-import { logIndicator } from '../utils/log'
+import { logMetrics } from '../utils/log'
 import ttiPolyfill from 'tti-polyfill'
 
 let tbt = 0
 
+/**
+ * 网站性能的数据
+ * @returns {PerformanceEntry}
+ * https://developer.mozilla.org/zh-CN/docs/Web/API/PerformanceTiming
+ * https://w3c.github.io/navigation-timing/#sec-PerformanceNavigationTiming
+ */
 export const getNavigationTime = () => {
   const navigation = window.performance.getEntriesByType('navigation')
   if (navigation.length > 0) {
     const timing = navigation[0] as PerformanceNavigationTiming
+
     if (timing) {
       const {
-        domainLookupEnd,
-        domainLookupStart,
-        transferSize,
-        encodedBodySize,
-        connectEnd,
-        connectStart,
-        workerStart,
-        redirectEnd,
+        // PerformanceTiming
+        domainLookupEnd,          // 解析域名结束时的 Unix毫秒时间戳
+        domainLookupStart,        // 域名开始解析之时的 Unix毫秒时间戳
+        // PerformanceResourceTiming
+        transferSize,             // 获取资源大小
+        encodedBodySize,          // 从 HTTP 或 cache 中获取的 body 资源大小
+        connectEnd,               // 浏览器与服务器建立连接并检索资源时立即返回的毫秒时间戳
+        connectStart,             // 返回用户开始与服务器建立连接以检索资源之前的时间戳
+        workerStart,              //
+        redirectEnd,              // 在接收到最后重定向响应的最后一个字节后，重定向只读属性会立即返回时间戳。
         redirectStart,
         redirectCount,
         responseEnd,
@@ -56,10 +65,17 @@ export const getNavigationTime = () => {
   return {}
 }
 
+/**
+ * 网络信息
+ * @returns
+ */
 export const getNetworkInfo = () => {
   if ('connection' in window.navigator) {
-    const connection = window.navigator['connection'] || {}
+    const connection = window.navigator['connection']
+    // 浏览器不同包含的属性也不同
+    // @ts-ignore
     const { effectiveType, downlink, rtt, saveData } = connection
+
     return {
       effectiveType,
       downlink,
@@ -71,6 +87,9 @@ export const getNetworkInfo = () => {
   return {}
 }
 
+/**
+ * 绘制时间
+ */
 export const getPaintTime = () => {
   getObserver('paint', (entries) => {
     entries.forEach((entry) => {
@@ -78,12 +97,12 @@ export const getPaintTime = () => {
       const name = entry.name
       if (name === 'first-contentful-paint') {
         getLongTask(time)
-        logIndicator('FCP', {
+        logMetrics('FCP', {
           time,
           score: getScore('fcp', time),
         })
       } else {
-        logIndicator('FP', {
+        logMetrics('FP', {
           time,
         })
       }
@@ -91,18 +110,19 @@ export const getPaintTime = () => {
   })
 }
 
+/**
+ * 首次输入时间
+ */
 export const getFID = () => {
   getObserver('first-input', (entries) => {
     entries.forEach((entry) => {
       if (entry.startTime < hiddenTime) {
         const time = entry.processingStart - entry.startTime
-        logIndicator('FID', {
+        logMetrics('FID', {
           time,
           score: getScore('fid', time),
         })
-        // TBT is in fcp -> tti
-        // This data may be inaccurate, because fid >= tti
-        logIndicator('TBT', {
+        logMetrics('TBT', {
           time: tbt,
           score: getScore('tbt', tbt),
         })
@@ -111,12 +131,15 @@ export const getFID = () => {
   })
 }
 
+/**
+ * 最大内容绘制时间
+ */
 export const getLCP = () => {
   getObserver('largest-contentful-paint', (entries) => {
     entries.forEach((entry) => {
       if (entry.startTime < hiddenTime) {
         const { startTime, renderTime, size } = entry
-        logIndicator('LCP Update', {
+        logMetrics('LCP Update', {
           time: renderTime | startTime,
           size,
           score: getScore('lcp', renderTime | startTime),
@@ -126,6 +149,9 @@ export const getLCP = () => {
   })
 }
 
+/**
+ * 累积布局偏移
+ */
 export const getCLS = () => {
   getObserver('layout-shift', (entries) => {
     let value = 0
@@ -134,32 +160,37 @@ export const getCLS = () => {
         value += entry.value
       }
     })
-    logIndicator('CLS Update', {
+    logMetrics('CLS Update', {
       value,
       score: getScore('cls', value),
     })
   })
 }
 
+/**
+ * 最长任务时间
+ * @param fcp
+ */
 export const getLongTask = (fcp: number) => {
   window.__tti = { e: [] }
   getObserver('longtask', (entries) => {
     window.__tti.e = window.__tti.e.concat(entries)
     entries.forEach((entry) => {
-      // get long task time in fcp -> tti
       if (entry.name !== 'self' || entry.startTime < fcp) {
         return
       }
-      // long tasks mean time over 50ms
       const blockingTime = entry.duration - 50
       if (blockingTime > 0) tbt += blockingTime
     })
   })
 }
 
+/**
+ * 可交互时间
+ */
 export const getTTI = () => {
   ttiPolyfill.getFirstConsistentlyInteractive().then((tti) => {
-    logIndicator('TTI', {
+    logMetrics('TTI', {
       value: tti,
     })
   })

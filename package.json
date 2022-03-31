@@ -16,7 +16,7 @@
     "dist"
   ],
   "keywords": [],
-  "author": "",
+  "author": "Junting",
   "license": "MIT",
   "devDependencies": {
     "@commitlint/cli": "^11.0.0",

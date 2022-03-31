@@ -1,25 +1,29 @@
 <html>
+
 <head>
-  <style>
-      .cls {
-          position: relative;
-          animation: move 0.1s forwards;
-      }
-      @keyframes move
-      {
-          from {
-              top: 0;
-          }
-          to {
-              top:200px;
-          }
-      }
-  </style>
+    <style>
+        .cls {
+            position: relative;
+            animation: move 0.1s forwards;
+        }
+
+        @keyframes move {
+            from {
+                top: 0;
+            }
+
+            to {
+                top: 200px;
+            }
+        }
+    </style>
 </head>
+
 <body>
-  <script src="./index.js"></script>
-  <div>Click and get PID Data</div>
-  <div>I'm the LargestContentfulPaint</div>
-  <div class='cls'>Cause CLS</div>
+    <script src="./index.js"></script>
+    <div>Click and get PID Data</div>
+    <div>I'm the LargestContentfulPaint</div>
+    <div class='cls'>Cause CLS</div>
 </body>
+
 </html>

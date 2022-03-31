@@ -1,5 +1,5 @@
-import { isSupportPerformance } from './utils'
-import { log, logIndicator } from './log'
+import { isSupportPerformance } from './utils/utils'
+import { log, logIndicator } from './utils/log'
 import {
   getNavigationTime,
   getNetworkInfo,
@@ -8,13 +8,13 @@ import {
   getLCP,
   getCLS,
   getTTI,
-} from './indicator'
-import { hiddenTime } from './utils'
-import { IPerCBProps, IPerProps } from './types'
+} from './core/metrics'
+import { hiddenTime } from './utils/utils'
+import { ICallbackProps, IWebMetricsCollection } from './types'
 import { config } from './config'
 
-export default class PerMoniteur implements IPerProps {
-  constructor(args: IPerCBProps) {
+export default class WebMetricsCollection implements IWebMetricsCollection {
+  constructor(args: ICallbackProps) {
     config.tracker = args.tracker
     if (typeof args.log === 'boolean') config.log = args.log
     if (!isSupportPerformance) {

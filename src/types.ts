@@ -1,13 +1,7 @@
-export type IPerCallback = (entries: any[]) => void
+// WMC => Web Metrics Collection
+export type ICallback = (entries: any[]) => void
 
-export interface IPerCBProps {
-  tracker?: (type: IPerDataType, data: any, allData: any) => void
-  log?: boolean
-}
-
-export type IPerData = Object | number
-
-export type IPerDataType =
+export type IWebMetricsType =
   | 'navigationTime'
   | 'networkInfo'
   | 'fcp'
@@ -18,8 +12,15 @@ export type IPerDataType =
   | 'tbt'
   | 'tti'
   | 'fmp'
+export interface ICallbackProps {
+  tracker?: (type: IWebMetricsType, data: any, allData: any) => void
+  log?: boolean
+}
 
-export interface IPerProps {
+export type IWebMetricsCollectionData = Object | number
+
+// 对外公共接口
+export interface IWebMetricsCollection {
   // performance mark
   markStart: (name: string) => void
   // performance mark and log measures

@@ -3,6 +3,7 @@ import { IWebMetricsCollectionData, IWebMetricsType } from '../types'
 
 const allData: Partial<Record<IWebMetricsType, IWebMetricsCollectionData>> = {}
 
+// EntryType
 const typeMap: Record<string, IWebMetricsType> = {
   'Navigation Time': 'navigationTime',
   'Network Info': 'networkInfo',
